@@ -1,5 +1,6 @@
 # Server imports
 import socketio
+from os import system as sy
 
 # Pokemon imports
 
@@ -14,8 +15,8 @@ def connect():
     sio.wait()
 
 @sio.event
-def in_queue():
-    print("No room avaliable, you're curerntly in queue...")
+def in_queue(data):
+    print("No room avaliable, you're curerntly in queue...\nYour prokemon is", data["N"])
     sio.wait()
 
 @sio.event
@@ -40,5 +41,5 @@ def turn_to_speak(data):
     sio.emit("client_turn", info)
     sio.wait()
 
-sio.connect("http://localhost:5000")
+sio.connect("http://0.0.0.0:5000")
 sio.wait()

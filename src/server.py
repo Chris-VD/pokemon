@@ -36,25 +36,25 @@ gen_id = id_gen.generate_game_ID()
 @sio.event
 def client_connected(sid, data):
     ID_list[sid] = [data, pokemons_battle[len(ID_list)]]
-    print(ID_list[sid][1])
     print(f"User connceted to the server as\nID: {sid}\nUsername: {data}")
     empty_rooms_check = check_rooms(all_battle_rooms)
     if not empty_rooms_check:
         battle_room = []
         print("Setting user on queue...")
-        battle_room.append(sid)
+        user_info = [sid, ID_list[sid][1]]
+        battle_room.append(user_info)
         battle_ID = str(next(gen_id))
         all_battle_rooms[battle_ID] = battle_room
-        sio.emit("in_queue", ID_list[sid][1], to=sid)
+        sio.emit("in_queue", user_info, to=sid)
     elif empty_rooms_check:
         keys_list = list(all_battle_rooms.keys())
         for battle in keys_list:
             print("Checking room...")
             if len(all_battle_rooms[battle]) == 1:
                 print("Coonecting user to room...")
-                all_battle_rooms[battle].append(sid)
+                user_info = [sid, ID_list[sid][1]]
+                all_battle_rooms[battle].append(user_info)
                 room_data = all_battle_rooms[battle]
-                #sio.emit("user_found", to=sid)
                 sio.emit("connected_to_room", room_data, to=sid)
 
 @sio.event

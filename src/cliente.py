@@ -3,7 +3,7 @@ import socketio
 from os import system as sy
 
 # Pokemon imports
-
+import interfaz as show
 
 sio = socketio.Client()
 
@@ -16,17 +16,15 @@ def connect():
 
 @sio.event
 def in_queue(data):
-    print("No room avaliable, you're curerntly in queue...\nYour prokemon is", data["N"])
-    sio.wait()
-
-@sio.event
-def user_found():
-    print("User found!")
+    # data = [sid, pokemon = {"N": "", "T": "", "LVL": "", "DEF": "", "MHP": "", "CHP": "", "ATK": [{"N": "", "T": "", "P": "", "MAP": "", "CAP": ""}]}]
+    print("Your prokemon is", data[1]["N"], "\nNo arena avaliable, you're curerntly in queue...")
     sio.wait()
 
 @sio.event
 def connected_to_room(data):
-    print("You've been connectd to a room! Say something:")
+    # data = [[sid, pokemon] (usuario1), [sid, pokemon] (usuario2)]
+    print("Your prokemon is", data[1][1]["N"], "\nYou've been connectd to an arena!")
+    show.mostrar_stats([data[0][1], data[1][1]])
     msg = input()
     info = [data, msg]
     sio.emit("client_turn", info)

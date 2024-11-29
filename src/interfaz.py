@@ -31,7 +31,7 @@ def display_gens():
     keys = list(gens.keys())
     print(keys)
     for i in range(len(gens)):
-        print(f"{fr(keys[i])}) Gen {keys[i]}")
+        print({fr(keys[i])},"Gen", {keys[i]})
 
 def display_pokemons(pokemons):
     """Displays a list of pokemons from a specific gen for the user to select.
@@ -45,7 +45,7 @@ def display_pokemons(pokemons):
     x = 0
     for i in pokemons:
         x += 1
-        print(f"{x}) {i["N"]}")
+        print({x},")",{i["N"]})
 
 def mostrar_stats(pokemon_list: list):
     """Shows the stats of the selected pokemon with it's attacks
@@ -54,12 +54,12 @@ def mostrar_stats(pokemon_list: list):
         pokemon_list (list): List of pokemons selected (usually user and rival)
     """
     for x in pokemon_list:
-        print(f"{x["N"]}:\nTipo: {x["T"]}\nNivel: {float(x["LVL"])}\nVida: {x["CHP"]}"
-            f"\nLista de ataques:")
+        print({x["N"]},":\nTipo:",{x["T"]},"\nNivel:",{float(x["LVL"])},"\nVida:",{x["CHP"]},
+            "\nLista de ataques:")
         y = 0
         for i in x["ATK"]:
             s(0.2)
-            print(f"\t-{x["ATK"][y]["N"]}--> Tipo: {x["ATK"][y]["T"]} Poder: {float(x["ATK"][y]["P"])} Acciones restantes: {float(x["ATK"][y]["CAP"])}\n")
+            print("\t-",{x["ATK"][y]["N"]},"--> Tipo:",{x["ATK"][y]["T"]},"Poder:",{float(x["ATK"][y]["P"])},"Acciones restantes:",{float(x["ATK"][y]["CAP"])},"\n")
             y = y + 1
         s(0.5)
 
@@ -72,5 +72,5 @@ def mostrar_ataques(pokemon: dict):
     y = 0
     for i in pokemon["ATK"]:
         s(0.2)
-        print(f"\t{y+1}) {pokemon["ATK"][y]["N"]}--> Tipo: {pokemon["ATK"][y]["T"]} Poder: {float(pokemon["ATK"][y]["P"])} Acciones restantes: {float(pokemon["ATK"][y]["CAP"])}\n")
+        print("\t",{y+1},")",{pokemon["ATK"][y]["N"]},"--> Tipo:",{pokemon["ATK"][y]["T"]},"Poder:",{float(pokemon["ATK"][y]["P"])},"Acciones restantes:",{float(pokemon["ATK"][y]["CAP"])},"\n")
         y = y + 1

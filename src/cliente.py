@@ -15,19 +15,17 @@ def connect():
     sio.wait()
 
 @sio.event
-def in_queue(data):
-    # data = [sid, pokemon = {"N": "", "T": "", "LVL": "", "DEF": "", "MHP": "", "CHP": "", "ATK": [{"N": "", "T": "", "P": "", "MAP": "", "CAP": ""}]}]
-    print("Your prokemon is", data[1]["N"], "\nNo arena avaliable, you're curerntly in queue...")
+def in_queue():
+    print("No arena avaliable, you're curerntly in queue...")
     sio.wait()
 
 @sio.event
 def connected_to_room(data):
-    # data = [[sid, pokemon] (usuario1), [sid, pokemon] (usuario2)]
-    print("Your prokemon is", data[1][1]["N"], "\nYou've been connectd to an arena!")
-    show.mostrar_stats([data[0][1], data[1][1]])
-    msg = input()
-    info = [data, msg]
-    sio.emit("client_turn", info)
+    # data = [[sid_user, pokemon_user], [sid_rival, [pokemon_rival_name, pokemon_rival_hp]], battle_ID]
+    print("Your prokemon is", data[0][1]["N"], "\nYou've been connectd to an arena!")
+    show.mostrar_stats([data[0][1]])
+    print("Rival:\n\t", data[1][1][0], ": HP -->",data[1][1][1])
+    sio.emit("battle_started", data)
     sio.wait()
 
 @sio.event
@@ -39,5 +37,5 @@ def turn_to_speak(data):
     sio.emit("client_turn", info)
     sio.wait()
 
-sio.connect("http://0.0.0.0:5000")
+sio.connect("http://localhost:5000")
 sio.wait()

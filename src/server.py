@@ -45,7 +45,7 @@ def client_connected(sid, data):
         battle_room.append(user_info)
         battle_ID = str(next(gen_id))
         all_battle_rooms[battle_ID] = battle_room
-        sio.emit("in_queue", user_info, to=sid)
+        sio.emit("in_queue", to=sid)
     elif empty_rooms_check:
         keys_list = list(all_battle_rooms.keys())
         for battle in keys_list:
@@ -54,8 +54,26 @@ def client_connected(sid, data):
                 print("Coonecting user to room...")
                 user_info = [sid, ID_list[sid][1]]
                 all_battle_rooms[battle].append(user_info)
-                room_data = all_battle_rooms[battle]
-                sio.emit("connected_to_room", room_data, to=sid)
+                # all_battle_rooms = {ID: [[sid1, pokemon1], [sid2, pokemon2]]}
+                rival_info = [all_battle_rooms[battle][0][0], [all_battle_rooms[battle][0][1]["N"], all_battle_rooms[battle][0][1]["MHP"]]]
+                battle_info = [user_info, rival_info, battle]
+                sio.emit("connected_to_room", battle_info, to=sid)
+
+@sio.event
+def battle_started(sid, data):
+    # data = [[sid_user, pokemon_user], [sid_rival, [pokemon_rival_name, pokemon_rival_hp]], battle_ID]
+    for user in data:
+        if user[0] != sid:
+            other_user = user[0]
+    battle_ID = data[2]
+    for user in all_battle_rooms[battle_ID]:
+        if user[0] == other_user:
+            pokemon_user = user[1]
+        else:
+            pokemon_rival_raw = user[1]
+    pokemon_rival = [pokemon_rival_raw["N"], pokemon_rival_raw["MHP"]]
+    battle_info = [[other_user, pokemon_user], [sid, pokemon_rival], battle_ID]
+    sio.emit("connected_to_room", battle_info, to=other_user)
 
 @sio.event
 def client_turn(sid, data):

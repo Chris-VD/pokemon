@@ -48,20 +48,13 @@ def dano_ataque(pokemon_atacante: dict, ataque: dict, pokemon_atacado: dict) -> 
         float: damage of the attack
     """
     debil = False
-    if int(pokemon_atacante["ATK"][ataque]["CAP"]) == 0:
-        print("O ataque selecionado non ten APs restantes!")
-        s(1)
-        return ValueError
     if pokemon_atacado["T"] in debilidades[pokemon_atacante["ATK"][ataque]["T"]]:
         debil = True
     crit = 1
     if debil:
         crit = 2
         if r(1,100) in range(47,52):
-            print("O ataque foi super efectivo!!")
             crit = 3
-        else:
-            print("O ataque foi moi efectivo!")
     dano = -1
     while dano<=0:
         dano = round(((((2*crit*(float(pokemon_atacante["LVL"])))/5)+2)*(float(pokemon_atacante["ATK"][ataque]["P"]))/(float(pokemon_atacado["DEF"])/(r(10,20)/10)))*1.5*(r(5,10)/10))

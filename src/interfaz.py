@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from time import sleep as s
-from roman import toRoman as tr
 from roman import fromRoman as fr
 from pokemons import gens
 
@@ -29,9 +28,8 @@ def display_gens():
     Displays a list of all gens for the user to select
     """
     keys = list(gens.keys())
-    print(keys)
     for i in range(len(gens)):
-        print(fr(keys[i]),"Gen", keys[i])
+        print(str(fr(keys[i]))+") Gen", keys[i])
 
 def display_pokemons(pokemons):
     """Displays a list of pokemons from a specific gen for the user to select.
@@ -40,7 +38,8 @@ def display_pokemons(pokemons):
         pokemons (dict): dictionary containing the pokemons of a specific generation
     """
     if len(pokemons) == 0:
-        print("Esta xeración está vacía!")
+        print(pokemons)
+        print("That generation is empty!")
         return 0
     x = 0
     for i in pokemons:
@@ -54,12 +53,12 @@ def mostrar_stats(pokemon_list: list):
         pokemon_list (list): List of pokemons selected (usually user and rival)
     """
     for x in pokemon_list:
-        print(x["N"],":\nTipo:",x["T"],"\nNivel:",float(x["LVL"]),"\nVida:",x["CHP"],
-            "\nLista de ataques:")
+        print(x["N"]+":\nType:",x["T"],"\nLevel:",float(x["LVL"]),"\nLife:",x["CHP"],
+            "\nAttack list:")
         y = 0
         for i in x["ATK"]:
             s(0.2)
-            print("\t-",x["ATK"][y]["N"],"--> Tipo:",x["ATK"][y]["T"],"Poder:",float(x["ATK"][y]["P"]),"Acciones restantes:",float(x["ATK"][y]["CAP"]),"\n")
+            print("\t-",x["ATK"][y]["N"],"--> Type:",x["ATK"][y]["T"],"Power:",float(x["ATK"][y]["P"]),"Action Points:",float(x["ATK"][y]["CAP"]),"\n")
             y = y + 1
         s(0.5)
 
@@ -72,5 +71,5 @@ def mostrar_ataques(pokemon: dict):
     y = 0
     for i in pokemon["ATK"]:
         s(0.2)
-        print("\t",y+1,")",pokemon["ATK"][y]["N"],"--> Tipo:",pokemon["ATK"][y]["T"],"Poder:",float(pokemon["ATK"][y]["P"]),"Acciones restantes:",float(pokemon["ATK"][y]["CAP"]),"\n")
+        print("\t",y+1,")",pokemon["ATK"][y]["N"],"--> Type:",pokemon["ATK"][y]["T"],"Power:",float(pokemon["ATK"][y]["P"]),"Action Points:",float(pokemon["ATK"][y]["CAP"]),"\n")
         y = y + 1

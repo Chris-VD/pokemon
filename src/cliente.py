@@ -5,13 +5,37 @@ from time import sleep as s
 
 # Pokemon imports
 import interfaz as show
+import pokemons as p
+
+p.new()
+
+def selec_pokemon():
+    while True:
+        try:
+            show.display_gens()
+            selec = input("Select a generation"
+                          "\n\t*Note: Gen X is an experimental generation with fake pokemons!\n")
+            if int(selec) not in range(1, len(p.gens)+1):
+                raise ValueError
+            keys = list(p.gens.keys())
+            selec = keys[int(selec)-1]
+            pokemons = p.gens[selec]
+            show.display_pokemons(pokemons)
+            selec = input("Seleccione o pokemon que queres empregar (1, 2, 3...):\n")
+            if (int(selec) not in range(1, len(pokemons)+1)):
+                raise ValueError
+            break
+        except:
+            print("Opción inválida.")
+    pokemon_usuario = pokemons[int(selec)-1]
+    return pokemon_usuario
 
 def selec_opc(data):
     opc = None
     while True:
         try:
             s(0.5)
-            opc = input("\nSelecione a acción a tomar:\na)Mostrar detalles da batalla\nb)Atacar\nc)Fuxir\n")
+            opc = input("\nSelect action:\na)Show battle details\nb)Attack\nc)Flee\n")
             opciones = ["A", "a", "B", "b", "C", "c"]
             if opc not in opciones:
                 raise ValueError
@@ -22,53 +46,39 @@ def selec_opc(data):
             print("\n\n")
             break
         except:
-            print("Opción inválida.")
+            print("Invalid option.")
     return opc
 
 def selec_atk(data):
     # data = [[sid_user, pokemon_user], [sid_rival, [pokemon_rival_name, pokemon_rival_hp]], battle_ID]
     pokemon_usuario = data[0][1]
     while True:
-        s(0.2)
-        show.mostrar_ataques(pokemon_usuario)
-        opc_atk = int(input("Seleccione o ataque(1, 2, 3...):"))
-        if int(opc_atk) not in range(1,len(pokemon_usuario["ATK"])+1) or int(pokemon_usuario["ATK"][opc_atk]["CAP"]) == 0:
-            print("O ataque seleccionado non existe ou non ten suficientes puntos de acción.")
-        else:
-            return opc_atk
+        try:
+            s(0.2)
+            show.mostrar_ataques(pokemon_usuario)
+            opc_atk = int(input("Select an attack(1, 2, 3...):"))
+            if int(opc_atk) not in range(1,len(pokemon_usuario["ATK"])+1) or int(pokemon_usuario["ATK"][(opc_atk-1)]["CAP"]) == 0:
+                print("Selected attack doesn't exist or it doesn't have remaining action points.")
+            else:
+                return opc_atk
+        except:
+            print("Invalid option.")
 
 def stats(data):
     # data = [[sid_user, pokemon_user], [sid_rival, [pokemon_rival_name, pokemon_rival_hp]], battle_ID]
     show.mostrar_stats([data[0][1]])
     print("Rival:\n\t", data[1][1][0], ": HP -->",data[1][1][1])
 
-def battle_opc():
-    """Displays a list of options mid battle for the user to select
-
-    Raises:
-        ValueError: If any of the values goes vobe the limit or there's an error
-    """
-    while True:
-        try:
-            s(0.5)
-            opc = input("Selecione a acción a tomar:\na)Mostrar detalles da batalla\nb)Atacar\nc)Fuxir\n")
-            opciones = ["A", "a", "B", "b", "C", "c"]
-            if opc not in opciones:
-                raise ValueError
-            print("\n\n")
-            break
-        except:
-            print("Opción inválida.")
-    return opc
-
 sio = socketio.Client()
 
 @sio.event
 def connect():
-    print("Connected to the server.\nWrite a username:")
-    username = input()
-    sio.emit("client_connected", username)
-    sio.wait()
+    print("Connected to the server.")
+    while True:
+        print("Welcome to this pokemon game!")
+        pokemon = selec_pokemon()
+        sio.emit("client_connected", pokemon)
+        sio.wait()
 
 @sio.event
 def in_queue():
@@ -98,13 +108,24 @@ def battle_start(data):
 
 @sio.event
 def damage_dealt(data):
-    # data = [dmg(int/"defeated"), battle_ID]
-    if data[0] == "defeated":
-        print("You defeated your opponent!")
-        exit()
+    # data = [dmg(int/["defeated", int]), battle_ID]
+    dmg = data[0]
+    battle_ID = data[1]
+    BS = None
+    if type(dmg) == list:
+        BS = dmg[0]
+        damage = dmg[1]
     else:
-        print("Your attack dealt",data[0],"points of damage!\nWaiting for opponent to attack...")
-    sio.emit("enemy_turn", data)
+        damage = dmg
+    if BS == "defeated":
+        print("You dealt",damage,"points of damage and defeated your opponent!")
+        damage_info = [damage, battle_ID]
+        sio.emit("battle_end", damage_info)
+        sio.wait()
+    else:
+        print("Your attack dealt",damage,"points of damage!\nWaiting for opponent to attack...")
+    damage_info = [damage, battle_ID]
+    sio.emit("enemy_turn", damage_info)
     sio.wait()
 
 @sio.event
@@ -120,6 +141,19 @@ def turn_to_attack(data):
     options = [opc, opc_atk, battle_ID]
     sio.emit("opc_chosen", options)
     sio.wait()
+
+@sio.event
+def defeated(data):
+    dmg = data
+    print("Your oponent attacked and dealt",dmg,"poinst of damage!")
+    print("You have been defeated!")
+    sio.emit("disconnect_client")
+    sio.wait()
+
+@sio.event
+def disconnect():
+    print("Disconnecting from server...")
+    exit()
 
 sio.connect("http://localhost:5000")
 sio.wait()

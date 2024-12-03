@@ -11,8 +11,6 @@
 __author__ = "Christian Varela Docampo"
 
 from xogo import dano_ataque as dano
-import interfaz as show
-from time import sleep as s
 
 '''
 {"N": "", "T": "", "LVL": "","DEF": "", "MHP": "", "CHP": "", "ATK": []} <- Pokemons
@@ -44,6 +42,7 @@ def turno_user(opc, pokemon_usuario, pokemon_rival, opc_atk):
                 dmg, BS = dano(pokemon_usuario, int((int(opc_atk)-1)), pokemon_rival)
                 if BS == "defeated":
                     battle = False
+                    BS = ["defeated", dmg]
                     return battle, BS
                 damage = dmg
                 break
@@ -74,7 +73,5 @@ def main_battle(data, opc, opc_atk):
             battle, damage = turno_user(opc, pokemon_usuario, pokemon_rival, opc_atk)
             if not battle == None:
                 break
-        if not battle:
-            print("Finalizando programa...")
-            exit()
+        # if defeated -> damage = ["defeated", dmg]
         return damage

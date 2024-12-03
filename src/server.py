@@ -4,19 +4,13 @@ import eventlet
 import id_gen
 
 # Pokemon imports
-import pokemons
 import main
-
-pokemons.new()
-pokemon_user1 = pokemons.gens["I"][0]
-pokemon_user2 = pokemons.gens["I"][3]
-pokemons_battle = [pokemon_user1, pokemon_user2]
 
 def check_rooms(all_rooms):
     full_rooms = 0
     for room in all_rooms:
         if len(all_battle_rooms[room]) == 1:
-            print("battle avaliable for user.")
+            print("Battle avaliable for user.")
             return True
         elif len(all_battle_rooms[room]) == 2:
             full_rooms += 1
@@ -36,13 +30,13 @@ gen_id = id_gen.generate_game_ID()
 
 @sio.event
 def client_connected(sid, data):
-    ID_list[sid] = [data, pokemons_battle[len(ID_list)]]
-    print(f"User connceted to the server as\nID: {sid}\nUsername: {data}")
+    ID_list[sid] = data
+    print(f"User connceted to the server\nID: {sid}\nPokemon: {data["N"]}")
     empty_rooms_check = check_rooms(all_battle_rooms)
     if not empty_rooms_check:
         battle_room = []
         print("Setting user on queue...")
-        user_info = [sid, ID_list[sid][1]]
+        user_info = [sid, ID_list[sid]]
         battle_room.append(user_info)
         battle_ID = str(next(gen_id))
         all_battle_rooms[battle_ID] = battle_room
@@ -53,7 +47,7 @@ def client_connected(sid, data):
             print("Checking room...")
             if len(all_battle_rooms[battle]) == 1:
                 print("Coonecting user to room...")
-                user_info = [sid, ID_list[sid][1]]
+                user_info = [sid, ID_list[sid]]
                 all_battle_rooms[battle].append(user_info)
                 # all_battle_rooms = {ID: [[sid1, pokemon1], [sid2, pokemon2]]}
                 rival_info = [all_battle_rooms[battle][0][0], [all_battle_rooms[battle][0][1]["N"], all_battle_rooms[battle][0][1]["CHP"]]]
@@ -109,5 +103,20 @@ def enemy_turn(sid, data):
     # battle_info = [[[sid_user, pokemon_user], [sid_rival, [pokemon_rival_name, pokemon_rival_hp]], battle_ID], dmg]
     battle_info = [[[sid_user, pokemon_user], [sid, rival_info], battle_ID], dmg]
     sio.emit("turn_to_attack", battle_info, to=sid_user)
+
+@sio.event
+def battle_end(sid, data):
+    # data = [dmg, battle_ID]
+    dmg = data[0]
+    battle_ID = data[1]
+    for user in all_battle_rooms[battle_ID]:
+        if user[0] != sid:
+            other_user = user[0]
+    sio.disconnect(sid)
+    sio.emit("defeated", dmg, to=other_user)
+
+@sio.event
+def disconnect_client(sid):
+    sio.disconnect(sid)
 
 eventlet.wsgi.server(eventlet.listen(("", 5000)), app)

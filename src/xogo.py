@@ -17,7 +17,6 @@ Deberá ter unha compoñente aleatoria. O dano non sempre será o mesmo repetín
 __author__ = "Christian Varela Docampo"
 
 from random import randint as r
-from time import sleep as s
 import json
 
 '''
@@ -57,7 +56,10 @@ def dano_ataque(pokemon_atacante: dict, ataque: dict, pokemon_atacado: dict) -> 
             crit = 3
     dano = -1
     while dano<=0:
-        dano = round(((((2*crit*(float(pokemon_atacante["LVL"])))/5)+2)*(float(pokemon_atacante["ATK"][ataque]["P"]))/(float(pokemon_atacado["DEF"])/(r(10,20)/10)))*1.5*(r(5,10)/10))
+        # Og dmg:
+        dano = round(((((2*crit*(float(pokemon_atacante["LVL"])))/5)+2)*(float(pokemon_atacante["ATK"][ataque]["P"]))/(float(pokemon_atacado["DEF"])/(r(20,30)/10)))*1.5*(r(5,10)/10))
+        # For quicker matches (Removed DEF):
+        # dano = round((((2*crit*(float(pokemon_atacante["LVL"])))/5)+2)*(float(pokemon_atacante["ATK"][ataque]["P"]))*1.5*(r(5,10)/10))
     pokemon_atacante["ATK"][ataque]["CAP"] = float(pokemon_atacante["ATK"][ataque]["CAP"]) - 1
     pokemon_atacado["CHP"] = float(pokemon_atacado["CHP"]) - dano
     if float(pokemon_atacado["CHP"]) <= 0:

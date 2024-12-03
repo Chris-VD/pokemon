@@ -45,7 +45,8 @@ def new():
     """
     x = 0
     # The level is set randomly but it's the same for all
-    LVL = int(r(11,89) + r(-10,10))
+    #LVL = int(r(11,89) + r(-10,10))
+    LVL = 20
     for pokemon in pokemons:
         x += 1
         pokemon["LVL"] = LVL
